@@ -4,9 +4,6 @@ const apiResponse = require('../helpers/response-helper')
 
 const getNotes = async (req, res) => {
   try {
-    /**
-     * @todo Write your code here
-     */
     const notes = await Note.findAll()
     const data = JSON.parse(JSON.stringify(notes))
     return apiResponse(res, responses.success.code, 'Notes retrieved successfully', data)
@@ -17,9 +14,6 @@ const getNotes = async (req, res) => {
 
 const getNote = async (req, res) => {
   try {
-    /**
-     * @todo Write your code here
-     */
     const id = req.params.id
     const notes = await Note.findAll({
       where: {
@@ -27,7 +21,7 @@ const getNote = async (req, res) => {
       }
     })
     const data = JSON.parse(JSON.stringify(notes))
-    return apiResponse(res, responses.success.code, 'Notes retrieved successfully', data.length ? data[0] : 'ID not found')
+    return data.length ? apiResponse(res, responses.success.code, 'Notes retrieved successfully', data[0]) : apiResponse(res, responses.notFound.code, 'ID not found')
   } catch (error) {
     return apiResponse(res, responses.error.code, 'Error retrieving notes')
   }
@@ -35,9 +29,6 @@ const getNote = async (req, res) => {
 
 const createNote = async (req, res) => {
   try {
-    /**
-     * @todo Write your code here
-     */
     const { title, content } = req.body
     const notes = {
       title,
@@ -62,9 +53,6 @@ const createNote = async (req, res) => {
 
 const updateNote = async (req, res) => {
   try {
-    /**
-     * @todo Write your code here
-     */
     const id = req.params.id
     const { title, content } = req.body
 
@@ -72,9 +60,9 @@ const updateNote = async (req, res) => {
     if (notes) {
       notes.title = title
       notes.content = content
-      notes.updateAt = new Date()
+      notes.updatedAt = new Date()
       notes.save()
-      return apiResponse(res, responses.success.code, 'Notes updatating successfully')
+      return apiResponse(res, responses.success.code, 'Note updated successfully', notes)
     } else {
       return apiResponse(res, responses.notFound.code, 'Notes not found')
     }
@@ -85,14 +73,14 @@ const updateNote = async (req, res) => {
 
 const deleteNote = async (req, res) => {
   try {
-    /**
-     * @todo Write your code here
-     */
     const id = req.params.id
     const notes = await Note.findByPk(id)
+    const data = {
+      id: notes.id
+    }
     if (notes) {
       await notes.destroy()
-      return apiResponse(res, responses.success.code, 'Note deleted successfully', id)
+      return apiResponse(res, responses.success.code, 'Note deleted successfully', data)
     } else {
       return apiResponse(res, responses.success.code, 'Error deleting note', `ID ${id} not found`)
     }
