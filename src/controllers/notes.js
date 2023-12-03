@@ -21,7 +21,7 @@ const getNote = async (req, res) => {
       }
     })
     const data = JSON.parse(JSON.stringify(notes))
-    return data.length ? apiResponse(res, responses.success.code, 'Notes retrieved successfully', data[0]) : apiResponse(res, responses.notFound.code, 'ID not found')
+    return data.length ? apiResponse(res, responses.success.code, 'Notes retrieved successfully', data[0]) : apiResponse(res, responses.notFound.code, 'Note not found', { id })
   } catch (error) {
     return apiResponse(res, responses.error.code, 'Error retrieving notes')
   }
@@ -64,7 +64,7 @@ const updateNote = async (req, res) => {
       notes.save()
       return apiResponse(res, responses.success.code, 'Note updated successfully', notes)
     } else {
-      return apiResponse(res, responses.notFound.code, 'Notes not found')
+      return apiResponse(res, responses.notFound.code, 'Note not found', { id })
     }
   } catch (error) {
     return apiResponse(res, responses.error.code, 'Error updating note')
@@ -75,14 +75,14 @@ const deleteNote = async (req, res) => {
   try {
     const id = req.params.id
     const notes = await Note.findByPk(id)
-    const data = {
-      id: notes.id
-    }
     if (notes) {
+      const data = {
+        id: notes.id
+      }
       await notes.destroy()
       return apiResponse(res, responses.success.code, 'Note deleted successfully', data)
     } else {
-      return apiResponse(res, responses.success.code, 'Error deleting note', `ID ${id} not found`)
+      return apiResponse(res, responses.notFound.code, 'Note not found', notes ? data : { id })
     }
   } catch (error) {
     return apiResponse(res, responses.error.code, 'Error deleting note')
